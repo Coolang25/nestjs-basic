@@ -13,6 +13,8 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   app.useGlobalPipes(new ValidationPipe())
+
+  app.enableCors();
   await app.listen(configService.get<string>('PORT') || 3000);
 }
 bootstrap();
