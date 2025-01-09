@@ -5,6 +5,8 @@ import { Company, CompanyDocument } from './schemas/company.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
+import aqp from 'api-query-params';
+import { User } from 'src/decorator/customize';
 
 @Injectable()
 export class CompaniesService {
@@ -23,19 +25,44 @@ export class CompaniesService {
     });
   }
 
-  findAll() {
-    return `This action returns all companies`;
+  async findAll(currentPage: number, limit: number, qs: string) {
+    const { filter, sort, population } = aqp(qs);
+    delete filter.page;
+    delete filter.limit;
+    let offset = (currentPage - 1) * limit;
+    let defaultLimit = +limit ? +limit : 10;
+
+    const totalItems = (await this.companyModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.companyModel.find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .populate(population)
+      .exec()
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems
+      },
+      result
+    };
   }
 
   findOne(id: number) {
     return `This action returns a #${id} company`;
   }
 
-  update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    return `This action updates a #${id} company`;
+  async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
+    return await this.companyModel.updateOne({ _id: id }, { ...updateCompanyDto, updatedBy: { _id: user._id, email: user.email } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`;
+  async remove(id: string, user: IUser) {
+    await this.companyModel.updateOne({ _id: id }, { deletedBy: { _id: user._id, email: user.email } });
+    return this.companyModel.softDelete({ _id: id });
   }
 }
