@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { TransformInterceptor } from './core/transform.interceptor';
 require('dotenv').config();
 
 async function bootstrap() {
@@ -13,6 +14,7 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   app.enableCors();
   await app.listen(configService.get<string>('PORT') || 3000);
