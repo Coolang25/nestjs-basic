@@ -22,7 +22,7 @@ export class UsersController {
 
   @Get()
   @ResponseMessage('Fetch all users')
-  findAll(@Query("page") currentPage: string, @Query("limit") limit: string, @Query() qs: string) {
+  findAll(@Query("current") currentPage: string, @Query("pageSize") limit: string, @Query() qs: string) {
     return this.usersService.findAll(+currentPage, +limit, qs);
   }
 
