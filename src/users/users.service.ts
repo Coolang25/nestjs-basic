@@ -109,11 +109,14 @@ export class UsersService {
       return `not found`;
     }
 
-    return this.userModel.findOne({ _id: id }).select('-password');
+    return this.userModel.findOne({ _id: id })
+      .select('-password')
+      .populate({ path: 'roles', select: { name: 1, _id: 1 } });
   }
 
   findOnByUsername(email: string) {
-    return this.userModel.findOne({ email: email });
+    return this.userModel.findOne({ email: email })
+      .populate({ path: 'role', select: { name: 1, permissions: 1 } });
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
@@ -129,6 +132,15 @@ export class UsersService {
   }
 
   async remove(id: string, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return `not found`;
+    }
+
+    const foundUser = await this.userModel.findById(id)
+    if (foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException("Action not allow")
+    }
+
     await this.userModel.updateOne(
       { _id: id },
       {
