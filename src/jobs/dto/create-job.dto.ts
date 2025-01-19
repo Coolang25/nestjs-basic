@@ -34,6 +34,9 @@ export class CreateJobDto {
     @IsNotEmpty({ message: 'Level is required' })
     level: string;
 
+    @IsNotEmpty({ message: 'Description is required' })
+    description: string;
+
     @IsNotEmpty({ message: 'Start date is required' })
     @Transform(({ value }) => new Date(value))
     @IsDate({ message: 'Start date is not valid' })
