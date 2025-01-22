@@ -7,6 +7,7 @@ import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
 require('dotenv').config();
 
 async function bootstrap() {
@@ -40,6 +41,8 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: ['1', '2'],
   });
+
+  app.use(helmet())
 
   await app.listen(configService.get<string>('PORT') || 3000);
 }
