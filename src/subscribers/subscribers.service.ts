@@ -36,6 +36,11 @@ export class SubscribersService {
     };
   }
 
+  async getSkills(user: IUser) {
+    const { email } = user
+    return await this.subscriberModel.findOne({ email }, { skills: 1 })
+  }
+
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
     delete filter.current;
@@ -72,12 +77,15 @@ export class SubscribersService {
     return this.subscriberModel.findOne({ _id: id });
   }
 
-  async update(id: string, updateSubscriberDto: UpdateSubscriberDto, user: IUser) {
+  async update(updateSubscriberDto: UpdateSubscriberDto, user: IUser) {
     return await this.subscriberModel.updateOne(
-      { _id: id },
+      { email: user.email },
       {
         ...updateSubscriberDto,
         updatedBy: { _id: user._id, email: user.email }
+      },
+      {
+        upsert: true
       }
     );
   }
