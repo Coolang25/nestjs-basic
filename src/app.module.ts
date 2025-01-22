@@ -15,9 +15,11 @@ import { RolesModule } from './roles/roles.module';
 import { DatabasesModule } from './databases/databases.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     //MongooseModule.forRoot('mongodb://root:1234@localhost:27017/'),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
